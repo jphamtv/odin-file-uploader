@@ -1,19 +1,21 @@
-// auth/passportConfig.js
-// const passport = require('passport');
-// const LocalStrategy = require('passport-local').Strategy;
-// const bcrypt = require('bcryptjs');
-
-import passport from 'passport';
 import bcrypt from 'bcryptjs';
+import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default function initialize() {
   // Passport configuration
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
+    new LocalStrategy(async (email, password, done) => {
       try {
         // Find user by username
-        const user = await User.getByUsername(username);  
+        const user = await prisma.user.findUnique({
+          where: {
+            email: email, 
+          },
+        });  
         if (!user) {
           return done(null, false, { message: 'Incorrect username' });
         }
@@ -38,7 +40,11 @@ export default function initialize() {
   
   passport.deserializeUser(async (id, done) => {
     try {
-      const user = await User.getById(id);
+      const user = await prisma.user.findUnique({
+          where: {
+            id: id, 
+          },
+        });  
       done(null, user);
     } catch (err) {
       done(err);

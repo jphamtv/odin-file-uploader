@@ -74,11 +74,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Routes
-app.use('/api/categories', categoriesRouter);
-app.use('/api/items', itemsRouter);
+// Routes placeholder
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server ready at: http://localhost:3000`);
 });
