@@ -3,6 +3,8 @@ const express = require('express');
 const session = require('express-session');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+const prisma = new PrismaClient();
 const path = require('path');
 const passport = require('passport');
 const cors = require('cors');
@@ -59,9 +61,35 @@ app.use(cors(corsOptions));
 // TESTING ONLY ******
 
 // Minimal routes for testing auth
-app.post('/auth/register', (req, res) => {
-  // TODO: Implement registration
-  res.status(501).json({ message: 'Not implemented' });
+app.post('/auth/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword
+      }
+    });
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Error registering user' });
+  }
 });
 
 app.post('/auth/login', passport.authenticate('local'), (req, res) => {
@@ -82,9 +110,6 @@ app.get('/api/protected', (req, res) => {
   }
   res.json({ message: 'You have access to this protected route' });
 });
-
-// Use the router
-app.use(router);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
