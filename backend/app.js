@@ -1,6 +1,7 @@
 // backend/app.js
 const express = require('express');
 const session = require('express-session');
+const multer = require('multer');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
@@ -10,6 +11,9 @@ const passport = require('passport');
 const cors = require('cors');
 const initializePassport = require('./auth/passportConfig');
 require('dotenv').config();
+
+// Configure Multer storage
+const upload = multer({ dest: './uploads' });
 
 const app = express();
 
@@ -109,6 +113,29 @@ app.get('/api/protected', (req, res) => {
     return res.status(401).json({ message: 'Not authenticated' });
   }
   res.json({ message: 'You have access to this protected route' });
+});
+
+// Test file upload
+app.post('/api/files/upload', upload.single('file'), async (req, res) => {
+  try {
+    // req.file contains info about uploaded file
+    // Save metadata to database
+    const fileData = await prisma.file.create({
+      data: {
+        name: req.file.originalname,
+        size: req.file.size,
+        mimeType: req.file.mimetype,
+        url: req.file.path,
+        userId: req.user.id
+      }
+    });
+
+    res.json(fileData);
+    console.log(req.file, req.body)
+  } catch (error) {
+    console.error('Upload error', error);
+    res.status(500).json({ message: 'Error uploading file' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
