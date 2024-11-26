@@ -61,8 +61,8 @@ app.use(cors(corsOptions));
 
 // Routes
 app.use('/auth', authRouter);
-app.use('api/files', filesRouter);
-app.use('api/folders', foldersRouter);
+app.use('/api/files', filesRouter);
+app.use('/api/folders', foldersRouter);
 
 // Test protected route
 app.get('/api/protected', (req, res) => {

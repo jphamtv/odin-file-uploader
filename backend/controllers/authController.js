@@ -1,17 +1,13 @@
 // backend/controllers/authController.js
-const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
-const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const prisma = new PrismaClient();
+const { getUser, createNew } = require('../models/authModel');
 
 const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const existingUser = await getUser(email);
 
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
@@ -21,12 +17,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword
-      }
-    });
+    const user = await createNew(email, hashedPassword);
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
