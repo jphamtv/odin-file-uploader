@@ -22,6 +22,15 @@ app.use(express.urlencoded({ extended: false })); // Get values from req.body
 const assetsPath = path.join(__dirname, 'public');
 app.use(express.static(assetsPath));
 
+// Basic CORS setup
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
+    : 'http://localhost:5173',
+  credentials: true
+};
+app.use(cors(corsOptions));
+
 // Session middleware config (MUST come before passport middleware)
 app.use(session({
   cookie: {
@@ -50,19 +59,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Basic CORS setup
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL
-    : 'http://localhost:5173',
-  credentials: true
-};
-app.use(cors(corsOptions));
-
 // Routes
+const authenticateRoute = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  next();
+};
+
 app.use('/', userRouter);
-app.use('/api/files', filesRouter);
-app.use('/api/folders', foldersRouter);
+app.use('/api/files', authenticateRoute, filesRouter);
+app.use('/api/folders', authenticateRoute, foldersRouter);
 
 // Test protected route
 app.get('/api/protected', (req, res) => {

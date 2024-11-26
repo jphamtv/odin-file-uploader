@@ -24,7 +24,13 @@ router.get('/auth/status', (req, res) => {
 });
 
 // Public routes
-router.post('/register', checkAuth, registerUser);
+router.post('/register', checkAuth, async (req, res, next) => {
+  try {
+    await registerUser(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post('/login', checkAuth, (req, res, next) => {
   passport.authenticate('local', (error, user, info) => {
