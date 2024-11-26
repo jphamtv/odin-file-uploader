@@ -1,36 +1,62 @@
 // backend/routes/user.js
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
+const { registerUser } = require('../controllers/userController');
 
 // Middleware
-function redirectIfAuthenticated(req, res, next) {
+function checkAuth(req, res, next) {
   if (req.isAuthenticated()) {
-    return res.redirect('/');
+    return res.status(403).json({ message: 'Already authenticated' });
   }
   next();
 }
 
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
+// Check authentication status
+router.get('/auth/status', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ authenticated: false });
   }
-  res.redirect('/login');
-}
-
-// Public routes
-router.post('/register', redirectIfAuthenticated, registerUser);
-router.post('/login', passport.authenticate('local'), {
-  successRedirect: '/',
-  failureRedirect: '/login'
-});
-
-// Protected routes
-router.get('/logout', ensureAuthenticated, (req, res, next) => {
-  req.logout((error) => {
-    if (error) return res.status(500).json({ message: 'Error logging out' });
-    res.json({ message: 'Logged out successfully' });
+  res.json({ 
+    authenticated: true,
+    user: { id: req.user.id, email: req.user.email }
   });
 });
 
+// Public routes
+router.post('/register', checkAuth, registerUser);
+
+router.post('/login', checkAuth, (req, res, next) => {
+  passport.authenticate('local', (error, user, info) => {
+    if (error) {
+      return res.status(500).json({ message: 'Authentication error' });
+    }
+    if (!user) {
+      return res.status(401).json({ message: info.message || 'Invalid credentials' });
+    }
+    req.logIn(user, (error) => {
+      if (error) {
+        return res.status(500).json({ message: 'Error logging in' });
+      }
+      return res.json({
+        message: 'Logged in successfully',
+        user: { id: user.id, email: user.email }
+      });
+    });
+  })(req, res, next);
+});
+
+// Protected routes
+router.get('/logout', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  req.logout((error) => {
+    if (error) {
+      return res.status(500).json({ message: 'Error logging out' });
+    }
+    res.json({ message: 'Logged out successfully' });
+  });
+});
 
 module.exports = router;
