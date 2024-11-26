@@ -7,7 +7,7 @@ const path = require('path');
 const passport = require('passport');
 const cors = require('cors');
 const initializePassport = require('./auth/passportConfig');
-const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
 const filesRouter = require('./routes/files');
 const foldersRouter = require('./routes/folders');
 require('dotenv').config();
@@ -60,7 +60,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes
-app.use('/auth', authRouter);
+app.use('/user', userRouter);
 app.use('/api/files', filesRouter);
 app.use('/api/folders', foldersRouter);
 
