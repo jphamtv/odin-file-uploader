@@ -2,9 +2,15 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const getUser = async (email) => {
+const getByEmail = async (email) => {
   return prisma.user.findUnique({
     where: { email }
+  });
+};
+
+const getById = async (id) => {
+  return prisma.user.findUnique({
+    where: { id }
   });
 };
 
@@ -18,6 +24,7 @@ const createNew = async (email, hashedPassword) => {
 };
 
 module.exports = {
-  getUser,
+  getByEmail,
+  getById,
   createNew
 }

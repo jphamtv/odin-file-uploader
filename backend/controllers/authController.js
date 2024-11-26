@@ -1,13 +1,13 @@
 // backend/controllers/authController.js
 const bcrypt = require('bcryptjs');
-const { getUser, createNew } = require('../models/userModel');
+const { getByEmail, createNew } = require('../models/userModel');
 
 const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     
     // Check if user exists
-    const existingUser = await getUser(email);
+    const existingUser = await getByEmail(email);
 
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
