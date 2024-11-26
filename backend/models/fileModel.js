@@ -3,7 +3,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const uploadFile = async (fileData, userId) => {
-  console.log(fileData, userId)
   return prisma.file.create({
     data: {
       name: fileData.originalname,
