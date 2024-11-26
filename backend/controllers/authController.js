@@ -1,6 +1,6 @@
 // backend/controllers/authController.js
 const bcrypt = require('bcryptjs');
-const { getUser, createNew } = require('../models/authModel');
+const { getUser, createNew } = require('../models/userModel');
 
 const registerUser = async (req, res) => {
   try {

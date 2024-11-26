@@ -1,4 +1,4 @@
-// backend/models/authModel.js
+// backend/models/userModel.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
