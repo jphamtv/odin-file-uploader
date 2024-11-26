@@ -1,5 +1,3 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const fs = require('fs').promises;
 const {
   uploadFile,
@@ -58,7 +56,7 @@ const fetchUserFiles = async (req, res) => {
     res.json(files);
   } catch (error) {
     console.error('Fetching error', error);
-    res.status(500).json({ message: 'Error fetching files ' });
+    res.status(500).json({ message: 'Error fetching files' });
   }
 };
 
