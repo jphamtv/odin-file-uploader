@@ -69,7 +69,7 @@ const authenticateRoute = (req, res, next) => {
 
 app.use('/', userRouter);
 app.use('/api/files', authenticateRoute, filesRouter);
-app.use('/api/folders', authenticateRoute, foldersRouter);
+// app.use('/api/folders', authenticateRoute, foldersRouter);
 
 // Test protected route
 app.get('/api/protected', (req, res) => {

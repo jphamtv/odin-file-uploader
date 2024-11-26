@@ -1,9 +1,9 @@
 // backend/models/fileModel.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const fs = require('fs').promises;
 
 const uploadFile = async (fileData, userId) => {
+  console.log(fileData, userId)
   return prisma.file.create({
     data: {
       name: fileData.originalname,
