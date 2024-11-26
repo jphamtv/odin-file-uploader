@@ -1,34 +1,26 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fs = require('fs').promises;
+const {
+  uploadFile,
+  getFile,
+  getAllFiles,
+  deleteFile
+} = require('../models/fileModel');
 
-const uploadFile = async (req, res) => {
+const handleUpload = async (req, res) => {
   try {
-    // req.file contains info about uploaded file
-    // Save metadata to database
-    const fileData = await prisma.file.create({
-      data: {
-        name: req.file.originalname,
-        size: req.file.size,
-        mimeType: req.file.mimetype,
-        url: req.file.path,
-        userId: req.user.id
-      }
-    });
-
-    res.json(fileData);
-    console.log(req.file, req.body)
+    const file = await uploadFile(req.file, req.user.id);
+    res.json(file);
   } catch (error) {
     console.error('Upload error', error);
     res.status(500).json({ message: 'Error uploading file' });
   }
 };
 
-const downloadFile = async (req, res) => {
+const handleDownload = async (req, res) => {
   try {
-    const file = await prisma.file.findUnique({
-      where: { id: req.params.id }
-    });
+    const file = await getFile(req.params.id);
 
     if (!file) {
       return res.status(404).json({ message: 'File not found' });
@@ -36,28 +28,24 @@ const downloadFile = async (req, res) => {
 
     res.download(file.url, file.name);
   } catch (error) {
-    console.error('Download error:', error);
+    console.error('Download error', error);
     res.status(500).json({ message: 'Error downloading file' });
   }
 };
 
-const getAllFiles = async (req, res) => {
+const fetchUserFiles = async (req, res) => {
   try {
-    const files = await prisma.file.findMany({
-      where: { userId: req.user.id },
-      orderBy: { createdAt: 'desc' } 
-    });
+    const files = await getAllFiles(req.user.id);
     res.json(files);
   } catch (error) {
+    console.error('Fetching error', error);
     res.status(500).json({ message: 'Error fetching files ' });
   }
 };
 
-const deleteFile = async (req, res) => {
+const handleDelete = async (req, res) => {
   try {
-    const file = await prisma.file.findUnique({
-      where: { id: req.params.id }
-    });
+    const file = await getFile(req.params.id);
 
     if (!file) {
       return res.status(404).json({ message: 'File not found' });
@@ -67,9 +55,7 @@ const deleteFile = async (req, res) => {
     await fs.unlink(file.url);
 
     // Delete database record
-    await prisma.file.delete({
-      where: { id: req.params.id }
-    });
+    await deleteFile(req.params.id);
 
     res.json({ message: 'File deleted successfully' });
   } catch (error) {
@@ -79,8 +65,8 @@ const deleteFile = async (req, res) => {
 };
 
 module.exports = {
-  uploadFile,
-  downloadFile,
-  getAllFiles,
-  deleteFile
+  handleUpload,
+  handleDownload,
+  fetchUserFiles,
+  handleDelete
 }

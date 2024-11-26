@@ -1,7 +1,6 @@
 // backend/app.js
 const express = require('express');
 const session = require('express-session');
-const multer = require('multer');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
@@ -12,9 +11,6 @@ const authRouter = require('./routes/auth');
 const filesRouter = require('./routes/files');
 const foldersRouter = require('./routes/folders');
 require('dotenv').config();
-
-// Configure Multer storage
-const upload = multer({ dest: './uploads' });
 
 const app = express();
 
