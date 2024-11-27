@@ -1,18 +1,46 @@
 // backend/models/fileModel.js
 const { PrismaClient } = require('@prisma/client');
+const supabase = require('../config/supabaseConfig');
 const prisma = new PrismaClient();
 
 const uploadFile = async (fileData, userId, folderId = null) => {
-  return prisma.file.create({
-    data: {
-      name: fileData.originalname,
-      size: fileData.size,
-      mimeType: fileData.mimetype,
-      url: fileData.path,
-      userId,
-      folderId
-    }
-  });
+  try {
+    // Upload file to Supabase Storage
+    const { data: storageData, error: storageError } = await supabase.storage
+      .from('file-storage')
+      .upload(
+        `${userId}/${fileData.originalname}`, // Path: userId/filename
+        fileData.buffer, // Raw file data
+        {
+          contentType: fileData.mimeType,
+          upsert: false // Don't overwrite if exists
+        }
+      );
+    
+    if (storageError) throw storageError;
+
+    // Get the public URL for the uploaded file
+    const { data: { publicUrl } } = supabase.storage
+      .from('file-storage')
+      .getPublicUrl(`${userId}/${fileData.originalname}`);
+    
+    // Create database record with Supabase URL
+    const file = await prisma.file.create({
+      data: {
+        name: fileData.originalname,
+        size: fileData.size,
+        mimeType: fileData.mimetype,
+        url: publicUrl,
+        userId,
+        folderId
+      }
+    });
+
+    return file;
+  } catch (error) {
+    console.error('File upload error:', error);
+    throw error;
+  }
 };
 
 const getFile = async (id) => {
@@ -29,6 +57,18 @@ const getAllFiles = async (userId) => {
 };
 
 const deleteFile = async (id) => {
+  const file = await getFile(id);
+  if (!file) throw new Error('File not found');
+
+  // Delete from Supabase Storage
+  const filePath = `${file.userId}/${file.name}`;
+  const { error: storageError } = await supabase.storage
+    .from('file-storage')
+    .remove([filepath]);
+  
+  if (storageError) throw storageError;
+
+  // Delete database record
   return prisma.file.delete({
     where: { id }
   });
