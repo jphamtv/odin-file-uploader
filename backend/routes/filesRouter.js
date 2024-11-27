@@ -9,8 +9,13 @@ const {
   handleDelete
 } = require('../controllers/fileController');
 
-// Configure Multer storage
-const upload = multer({ dest: './uploads' });
+// Configure Multer storage into memory
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024 // 20MB limit
+  }
+});
 
 router.post('/upload', upload.single('file'), handleUpload);
 router.get('/:id/download', handleDownload);
