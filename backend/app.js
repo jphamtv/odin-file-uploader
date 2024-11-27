@@ -6,7 +6,7 @@ const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const passport = require('passport');
 const cors = require('cors');
-const initializePassport = require('./auth/passportConfig');
+const initializePassport = require('./config/passportConfig');
 const userRouter = require('./routes/usersRouter');
 const filesRouter = require('./routes/filesRouter');
 const foldersRouter = require('./routes/foldersRouter');
@@ -71,14 +71,6 @@ const authenticateRoute = (req, res, next) => {
 app.use('/', userRouter);
 app.use('/api/files', authenticateRoute, filesRouter);
 app.use('/api/folders', authenticateRoute, foldersRouter);
-
-// Test protected route
-app.get('/api/protected', (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: 'Not authenticated' });
-  }
-  res.json({ message: 'You have access to this protected route' });
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

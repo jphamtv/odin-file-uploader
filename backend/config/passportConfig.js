@@ -30,8 +30,8 @@ function initialize() {
         }
 
         return done(null, user);
-      } catch (err) {
-        return done(err);
+      } catch (error) {
+        return done(error);
       }
     })
   );
@@ -44,8 +44,8 @@ function initialize() {
     try {
       const user = await getById(id);
       done(null, user);
-    } catch (err) {
-      done(err);
+    } catch (error) {
+      done(error);
     }
   });
 }

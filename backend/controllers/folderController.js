@@ -116,16 +116,13 @@ const handleFolderUpload = async (req, res) => {
   try {
     // Verify folder exists and user owns it
     const folder = await getFolder(req.params.id);
-    console.log('Folder: ', folder)
     if (!folder) {
       return res.status(404).json({ message: 'Folder not found' });
     }
     if (folder.userId !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
-
-    console.log('File to upload: ', req.file)
-    
+  
     // Handle file upload
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -136,7 +133,6 @@ const handleFolderUpload = async (req, res) => {
     }
 
     const file = await uploadFile(req.file, req.user.id, folder.id);
-    console.log('File uploaded: ', file)
     res.json(file);
   } catch (error) {
     if (req.file) {
