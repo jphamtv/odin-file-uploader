@@ -1,3 +1,4 @@
+const fs = require('fs').promises;
 const {
   createNew,
   getAllFolders,
@@ -6,11 +7,14 @@ const {
   updateFolder,
   deleteFolder,
 } = require('../models/folderModel');
+const { uploadFile } = require('../models/fileModel');
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 const createNewFolder = async (req, res) => {
   try {
-    const { name } = req.body;
-    const folder = await createNew(name, req.user.id);
+    const { name, parentId } = req.body;
+    const folder = await createNew(name, req.user.id, parentId);
     res.json(folder);
   } catch (error) {
     console.error('Create error', error);
@@ -108,11 +112,46 @@ const handleDelete = async (req, res) => {
   }
 };
 
+const handleFolderUpload = async (req, res) => {
+  try {
+    // Verify folder exists and user owns it
+    const folder = await getFolder(req.params.id);
+    console.log('Folder: ', folder)
+    if (!folder) {
+      return res.status(404).json({ message: 'Folder not found' });
+    }
+    if (folder.userId !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    console.log('File to upload: ', req.file)
+    
+    // Handle file upload
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    if (req.file.size > MAX_FILE_SIZE) {
+      await fs.unlink(req.file.path);
+      return res.status(400).json({ message: 'File too large (max 20MB)' });
+    }
+
+    const file = await uploadFile(req.file, req.user.id, folder.id);
+    console.log('File uploaded: ', file)
+    res.json(file);
+  } catch (error) {
+    if (req.file) {
+      await fs.link(req.file.path);
+    }
+    res.status(500).json({ message: 'Error uploading file' });
+  }
+};
+
 module.exports = {
   createNewFolder,
   fetchUserFolders,
   fetchFolder,
   fetchFolderContents,
   handleUpdate,
-  handleDelete
+  handleDelete,
+  handleFolderUpload
 }
