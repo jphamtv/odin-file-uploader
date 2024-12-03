@@ -5,21 +5,25 @@ const prisma = new PrismaClient();
 
 const uploadFile = async (fileData, userId, folderId = null) => {
   try {
-    // Upload file to Supabase Storage
+    // Set options to force download for all file types
+    const options = {
+      contentType: fileData.mimeType,
+      upsert: false,
+      contentDisposition: `attachment; filename="${fileData.originalname}"` // This forces download
+    };
+
+    // Upload file to Supabase 
     const { data: storageData, error: storageError } = await supabase.storage
       .from('file-storage')
       .upload(
         `${userId}/${fileData.originalname}`, // Path: userId/filename
         fileData.buffer, // Raw file data
-        {
-          contentType: fileData.mimeType,
-          upsert: false // Don't overwrite if exists
-        }
+        options
       );
     
     if (storageError) throw storageError;
 
-    // Get the public URL for the uploaded file
+    // Get public URL 
     const { data: { publicUrl } } = supabase.storage
       .from('file-storage')
       .getPublicUrl(`${userId}/${fileData.originalname}`);

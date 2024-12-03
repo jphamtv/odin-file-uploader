@@ -9,8 +9,6 @@ const {
 } = require('../models/folderModel');
 const { uploadFile } = require('../models/fileModel');
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-
 const createNewFolder = async (req, res) => {
   try {
     const { name, parentId } = req.body;
@@ -127,17 +125,11 @@ const handleFolderUpload = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    if (req.file.size > MAX_FILE_SIZE) {
-      await fs.unlink(req.file.path);
-      return res.status(400).json({ message: 'File too large (max 20MB)' });
-    }
 
     const file = await uploadFile(req.file, req.user.id, folder.id);
     res.json(file);
   } catch (error) {
-    if (req.file) {
-      await fs.link(req.file.path);
-    }
+    console.error('Upload error', error);
     res.status(500).json({ message: 'Error uploading file' });
   }
 };
