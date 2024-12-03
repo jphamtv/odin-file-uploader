@@ -22,8 +22,6 @@ router.get('/:id', fetchFolder);
 router.get('/:id/contents', fetchFolderContents);
 router.put('/:id', handleUpdate);
 router.delete('/:id', handleDelete);
-
-// Routes for uploading files in folders
 router.post('/:id/upload', upload.single('file'), handleFolderUpload);
 
 module.exports = router;
