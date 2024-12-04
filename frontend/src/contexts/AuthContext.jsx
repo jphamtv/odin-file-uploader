@@ -1,0 +1,88 @@
+// src/contexts/AuthContext.jsx
+import { createContext, useState, useEffect } from "react";
+import PropTypes from 'prop-types';
+import { authApi } from '../services/api';
+
+export const AuthContext = createContext(undefined);
+
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const login = async (email, password) => {
+    try {
+      const data = await authApi.login(email, password);
+      setIsAuthenticated(true);
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      setIsAuthenticated(false);
+      setUser(null);
+      throw error; // Re-throw to handle in the UI
+    }    
+  };
+
+  const register = async (email, password) => {
+    try {
+      const data = await authApi.register(email, password);
+      setIsAuthenticated(true);
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      setIsAuthenticated(false);
+      setUser(null);
+      throw error;
+    }    
+  };
+
+  const logout = async () => {
+    try { 
+      const data = await authApi.logout();
+      setIsAuthenticated(false);
+      setUser(null);
+      return data;
+    } catch (error) {
+      setIsAuthenticated(false);
+      setUser(null);
+      throw error; 
+    }    
+  };
+
+  const checkAuthStatus = async () => {
+    try {      
+      const data = await authApi.checkAuthStatus();
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        setUser(data.user);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+      setUser(null);
+      throw error;
+    }
+  };
+
+  // Check auth status on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const value = {
+    isAuthenticated,
+    user,
+    login,
+    register,
+    logout,
+    checkAuthStatus
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
