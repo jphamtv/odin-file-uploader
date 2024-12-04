@@ -27,11 +27,13 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password) => {
     try {
+      setError(null);
       const data = await authApi.register(email, password);
       setIsAuthenticated(true);
       setUser(data.user);
       return data;
     } catch (error) {
+      setError(error.message);
       setIsAuthenticated(false);
       setUser(null);
       throw error;
@@ -40,11 +42,13 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try { 
+      setError(null);
       const data = await authApi.logout();
       setIsAuthenticated(false);
       setUser(null);
       return data;
     } catch (error) {
+      setError(error.message);
       setIsAuthenticated(false);
       setUser(null);
       throw error; 
@@ -54,12 +58,17 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {      
       setIsLoading(true);
+      setError(null);
       const data = await authApi.checkAuthStatus();
       if (data.authenticated) {
         setIsAuthenticated(true);
         setUser(data.user);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
       }
     } catch (error) {
+      setError(error.message);
       setIsAuthenticated(false);
       setUser(null);
       throw error;
