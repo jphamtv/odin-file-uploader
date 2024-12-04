@@ -1,9 +1,8 @@
-// src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from "react";
+// src/contexts/AuthProvider.jsx
+import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { authApi } from '../services/api';
-
-export const AuthContext = createContext(undefined);
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
