@@ -7,14 +7,18 @@ import { AuthContext } from './AuthContext';
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const login = async (email, password) => {
     try {
+      setError(null);
       const data = await authApi.login(email, password);
       setIsAuthenticated(true);
       setUser(data.user);
       return data;
     } catch (error) {
+      setError(error.message);
       setIsAuthenticated(false);
       setUser(null);
       throw error; // Re-throw to handle in the UI
@@ -49,6 +53,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {      
+      setIsLoading(true);
       const data = await authApi.checkAuthStatus();
       if (data.authenticated) {
         setIsAuthenticated(true);
@@ -58,6 +63,8 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +76,8 @@ export const AuthProvider = ({ children }) => {
   const value = {
     isAuthenticated,
     user,
+    isLoading,
+    error,
     login,
     register,
     logout,
