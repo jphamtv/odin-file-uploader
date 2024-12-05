@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { authApi } from '../services/api';
-import { AuthContext } from './AuthContext';
+import AuthContext from './AuthContext';
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,3 +103,5 @@ export const AuthProvider = ({ children }) => {
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default AuthProvider;
