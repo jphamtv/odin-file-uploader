@@ -1,4 +1,26 @@
-/* src/pages/auth/RegisterPage.css */
+/* src/pages/auth/Auth.css */
+
+/* LOGIN */
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-box h2 {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* REGISTER */
 
 .register-container {
   min-height: 100vh;
@@ -19,7 +41,7 @@
 }
 
 
-/* GLOBAL - MERGE WITH LOGIN */
+/* GLOBAL AUTH STYLES */
 
 .form-group {
   margin-bottom: 16px;
@@ -35,6 +57,10 @@
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.link {
+  margin-top: 1rem;
 }
 
 .error-message {

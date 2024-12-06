@@ -22,7 +22,7 @@ const DashboardPage = () => {
         <h1>My files</h1>
         <div className="user-controls">
           <span>Welcome, {user?.email}</span>
-          <button className="logout-button" onClick={handleLogout}></button>
+          <button className="logout-button" onClick={handleLogout}>Log Out</button>
         </div>
       </header>
 

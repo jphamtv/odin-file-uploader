@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuthContext';
-import './LoginPage.css'
+import './Auth.css';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -30,7 +30,6 @@ const LoginPage = () => {
     <div className="login-container">
       <div className="login-box">
         <h2>Sign in to your account</h2>
-        <Link to="/register">Create an account</Link>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
@@ -55,7 +54,7 @@ const LoginPage = () => {
             />
           </div>
 
-          {error & (
+          {error && (
             <div className="error-message">
               {error}
             </div>
@@ -69,6 +68,9 @@ const LoginPage = () => {
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <div className="link">
+          <Link to="/register">Create an account</Link>
+        </div>
       </div>
     </div>
   );

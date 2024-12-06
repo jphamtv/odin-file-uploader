@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../hooks/useAuthContext";
-import './Register.css';
+import './Auth.css';
 
 const RegisterPage = () => {
   const { register: registerUser } = useAuth();
@@ -34,7 +34,6 @@ const RegisterPage = () => {
     <div className="register-container">
       <div className="register-box">
         <h2>Create your account</h2>
-        <Link to='/login'>Already have an account? Sign in</Link>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
@@ -54,13 +53,13 @@ const RegisterPage = () => {
               {...register('password', { required: true })}
               id='password'
               type="password"
-              autoComplete='current-password'
+              autoComplete='new-password'
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Password</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               {...register('confirmPassword', {
                 required: true,
@@ -68,13 +67,13 @@ const RegisterPage = () => {
                   value === password || 'Passwords do not match'
               })}
               id='confirmPassword'
-              type="confirmPassword"
+              type="password"
               autoComplete='new-password'
               required
             />
           </div>
 
-          {error & (
+          {error && (
             <div className="error-message">
               {error}
             </div>
@@ -89,6 +88,9 @@ const RegisterPage = () => {
           </button>
 
         </form>
+        <div className="link">
+          <Link to='/login'>Already have an account? Sign in</Link>
+        </div>
       </div>
     </div>
   );
