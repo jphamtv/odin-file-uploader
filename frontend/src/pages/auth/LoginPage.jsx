@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuthContext';
+import './LoginPage.css'
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -34,6 +35,7 @@ const LoginPage = () => {
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
+              {...register('email', { required: true })}
               id='email'
               type="email"
               autoComplete='email'
