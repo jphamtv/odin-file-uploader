@@ -1,6 +1,6 @@
 // src/pages/auth/LoginPage.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuthContext';
 import './LoginPage.css'
@@ -30,6 +30,7 @@ const LoginPage = () => {
     <div className="login-container">
       <div className="login-box">
         <h2>Sign in to your account</h2>
+        <Link to="/register">Create an account</Link>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
