@@ -68,7 +68,7 @@ const deleteFile = async (id) => {
   const filePath = `${file.userId}/${file.name}`;
   const { error: storageError } = await supabase.storage
     .from('file-storage')
-    .remove([filepath]);
+    .remove([filePath]);
   
   if (storageError) throw storageError;
 
