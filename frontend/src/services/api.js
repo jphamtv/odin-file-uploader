@@ -64,7 +64,7 @@ export const fileApi = {
     if (!(file instanceof File)) {
       throw new Error('Upload requires a File object');
     }
-    
+
     const options = {
       ...defaultOptions,
       method: 'POST',
@@ -94,9 +94,11 @@ export const fileApi = {
     });
 
     await handleApiError(response, 'Download failed');
+    const data = await response.json();
 
-    // Return blob for file download
-    return response.blob();
+    // Fetch the actual file from the URL
+    const fileResponse = await fetch(data.url);
+    return fileResponse.blob();
   },
 
   // Utility to handle the actual browser download
