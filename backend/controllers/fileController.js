@@ -33,8 +33,8 @@ const handleDownload = async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
-    // Redirect to Supabase URL
-    res.redirect(file.url);
+    // Send URL to frontend
+    res.json({ url: file.url });
   } catch (error) {
     console.error('Download error', error);
     res.status(500).json({ message: 'Error downloading file' });
