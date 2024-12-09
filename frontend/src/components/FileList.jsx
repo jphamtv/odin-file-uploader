@@ -71,7 +71,7 @@ const FileList = ({ files, onFileDelete }) => {
             <tr key={file.id}>
               <td>{file.name}</td>
               <td>{formatSize(file.size)}</td>
-              <td>{formatDate(file.uploadedAt)}</td>
+              <td>{formatDate(file.createdAt)}</td>
               <td>
                 <button
                   onClick={() => handleDownload(file)}
@@ -102,7 +102,7 @@ FileList.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       size: PropTypes.number.isRequired,
-      uploadedAt: PropTypes.string.isRequired
+      createdAt: PropTypes.string.isRequired
     })
   ),
   onFileDelete: PropTypes.func.isRequired
