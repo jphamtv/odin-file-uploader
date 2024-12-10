@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import { fileApi, folderApi } from '../services/api';
 import './ContentList.css';
 
-const ContentList = ({ files, folders, onFileDelete, onFolderDelete, onFolderClick }) => {
+const ContentList = ({
+  files = [],
+  folders = [],
+  onFileDelete,
+  onFolderDelete,
+  onFolderClick
+}) => {
   const [loading, setLoading] = useState({});
 
   const handleDownload = async (file) => {
@@ -164,11 +170,6 @@ ContentList.propTypes = {
   onFileDelete: PropTypes.func.isRequired,
   onFolderDelete: PropTypes.func.isRequired,
   onFolderClick: PropTypes.func.isRequired
-};
-
-ContentList.defaultProps = {
-  files: [],
-  folders: []
 };
 
 export default ContentList;

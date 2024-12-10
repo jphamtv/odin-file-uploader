@@ -144,7 +144,7 @@ export const folderApi = {
       {
         ...defaultOptions,
         method: 'POST',
-        body: JSON.stringify({ name, parentId });
+        body: JSON.stringify({ name, parentId })
       }
     );
 
