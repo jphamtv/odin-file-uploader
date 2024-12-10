@@ -66,13 +66,15 @@ const DashboardPage = () => {
   };
 
   const handleFileSelect = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
     try {
       setLoading(true);
-      await fileApi.upload(file);
-      await loadFiles(); // Reload the file list
+      await Promise.all(
+        files.map(file => fileApi.upload(file, currentFolder.id))
+      );
+      await loadContents(); // Reload the content list
       event.target.value = ''; // Reset file input
     } catch (error) {
       setError('Upload failed');
