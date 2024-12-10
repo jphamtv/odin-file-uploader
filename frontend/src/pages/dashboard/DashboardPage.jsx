@@ -9,7 +9,7 @@ const DashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
-  const [folder, setFolders] = useState([]);
+  const [folders, setFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState({
     id: null, // null means root folder
     path: [{id: null, name: 'My Files'}]
@@ -187,6 +187,26 @@ const DashboardPage = () => {
         </div>
       </header>
 
+      <div className="breadcrumb">
+        {currentFolder.path.map((item, index) => (
+          <span key={item.id || 'root'}>
+            {index > 0 && ' / '}
+            <button
+              onClick={() => {
+                // Set current folder to this level
+                setCurrentFolder({
+                  id: item.id,
+                  path: currentFolder.path.slice(0, index + 1)
+                });
+              }}
+              className="breadcrumb-button"
+            >
+              {item.name}
+            </button>
+          </span>
+        ))}
+      </div>
+
       <main className="dashboard-main">
         <div className="actions-bar">
           <input
@@ -205,11 +225,46 @@ const DashboardPage = () => {
           >
             {loading ? 'Uploading...' : 'Upload File'}
           </button>
-          {/* New Folder button disabled for now */}
-          <button className="action-button" disabled>
+          <button
+            className="action-button"
+            onClick={() => setShowNewFolderInput(true)}
+            disabled={loading || showNewFolderInput}
+          >
             New Folder
           </button>
         </div>
+
+        {/* New folder input form */}
+        {showNewFolderInput && (
+          <form
+            onSubmit={handleCreateFolder}
+            className="new-folder-form"
+          >
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Enter folder name"
+              autoFocus
+              maxLength={255}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowNewFolderInput(false);
+                setNewFolderName('');
+              }}
+            >
+              Cancel
+            </button>
+          </form>
+        )}
 
         {error && (
           <div className="error-message">
@@ -218,12 +273,15 @@ const DashboardPage = () => {
         )}
 
         <div className="content-area">
-          {loading && !files.length ? (
+          {loading && !files.length && !folders.length ? (
             <div className="loading-state">Loading...</div>
           ) : (
-            <FileList 
+            <ContentList 
               files={files}
+              folders={folders}
               onFileDelete={handleFileDelete}
+              onFolderDelete={handleFolderDelete}
+              onFolderClick={handleFolderClick}
             />
           )}
         </div>
