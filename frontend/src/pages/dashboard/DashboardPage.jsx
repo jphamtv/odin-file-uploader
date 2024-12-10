@@ -1,17 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuthContext";
-import { fileApi } from "../../services/api";
-import FileList from "../../components/FileList";
+import { fileApi, folderApi } from "../../services/api";
+import ContentList from "../../components/ContentList";
 import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
+  const [folder, setFolders] = useState([]);
+  const [currentFolder, setCurrentFolder] = useState({
+    id: null, // null means root folder
+    path: [{id: null, name: 'My Files'}]
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const [showNewFolderInput, setShowNewFolderInput] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
 
   useEffect(() => {
     loadFiles();
