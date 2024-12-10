@@ -21,17 +21,32 @@ const DashboardPage = () => {
   const [newFolderName, setNewFolderName] = useState('');
 
   useEffect(() => {
-    loadFiles();
-  }, []);
+    loadContents();
+  }, [currentFolder.id]); // reload when folder changes
 
-  const loadFiles = async () => {
+  const loadContents = async () => {
     try {
       setLoading(true);
-      const data = await fileApi.getFiles();
-      setFiles(data);
-    } catch (err) {
-      setError('Failed to load files');
-      console.error('Error loading files:', err);
+      setError(null);
+
+      if (currentFolder.id === null) {
+        // Root folder - get all root files and folders
+        const [filesData, foldersData] = await Promise.all([
+          fileApi.getFiles(),
+          folderApi.getAll()
+        ]);
+        setFiles(filesData.files || []);
+        // Filter for root folders (those without parentId)
+        setFolders(foldersData.folders?.filter(f => !f.parentId) || []);
+      } else {
+        // Specific folder - get its contents
+        const contents = await folderApi.getContents(currentFolder.id);
+        setFiles(contents.files || []);
+        setFolders(contents.folders || []);
+      }
+    } catch (error) {
+      setError('Failed to load contents');
+      console.error('Error loading contents:', error);
     } finally {
       setLoading(false);
     }
@@ -69,6 +84,47 @@ const DashboardPage = () => {
 
   const handleFileDelete = (fileId) => {
     setFiles(files.filter(file => file.id !== fileId));
+  };
+
+  const handleFolderClick = async (folderId) {
+    try {
+      const folderInfo = await folderApi.get(folderId);
+      setCurrentFolder(prev => ({
+        id: folderId,
+        path: [...prev.path, { id: folderId, name: folderInfo.name}]
+      }));
+    } catch (error) {
+      setError('Failed to open folder');
+      console.error('Navigation error: ', error);
+    }
+  };
+
+  const handleFolderDelete = async (folderId) => {
+    try {
+      await folderApi.delete(folderId);
+      setFolders(prevFolders => prevFolders.filter(f => f.id !== folderId));
+    } catch (error) {
+      setError('Failed to delete folder');
+      console.error('Folder deletion error: ', error);
+    }
+  };
+
+  const handleCreateFolder = async (e) => {
+    e.preventDefault();
+    if (!newFolderName.trim()) return;
+
+    try {
+      setLoading(true);
+      await folderApi.create(newFolderName, currentFolder.id);
+      setNewFolderName('');
+      setShowNewFolderInput(false);
+      await loadContents(); // Reload to show new folder
+    } catch (error) {
+      setError('Failed to create new folder');
+      console.error('Folder creation error: ', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
