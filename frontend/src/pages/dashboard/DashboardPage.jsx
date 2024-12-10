@@ -20,6 +20,26 @@ const DashboardPage = () => {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
+  // Safeguards for file upload
+  const MAX_FILES = 10;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
+  const ALLOWED_FILE_TYPES = [
+    // Images
+    'image/jpeg',
+    'image/png',
+    
+    // Documents
+    'application/pdf',
+    'text/plain',
+
+    // Videos
+    'video/mp4',
+    'video/quicktime',  // .mov files
+    'video/x-msvideo',  // .avi files
+    'video/webm',
+    'video/x-matroska',  // .mkv files
+  ]; 
+
   useEffect(() => {
     loadContents();
   }, [currentFolder.id]); // reload when folder changes
@@ -66,18 +86,46 @@ const DashboardPage = () => {
   };
 
   const handleFileSelect = async (event) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
+    const selectedFiles = Array.from(event.target.files || []);
+    if (selectedFiles.length === 0) return;
+
+    // Validation checks
+    if (selectedFiles.length > MAX_FILES) {
+      setError(`You can only upload up to ${MAX_FILES} files at once`);
+      event.target.value = '';
+      return;
+    }
+
+    // Validate each file
+    const invalidFiles = selectedFiles.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        return `${file.name} is too large (max ${MAX_FILE_SIZE / 1024 / 1024}MB)`;
+      }
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        return `${file.name} has unsupported file type`;
+      }
+      return false;
+    });
+
+    if (invalidFiles > 0) {
+      setError('Some files cannot be uploaded: ' + invalidFiles.join(', '));
+      event.target.value = '';
+      return;
+    }
 
     try {
       setLoading(true);
+      setError(null);
+
+      // Upload all valid files
       await Promise.all(
         files.map(file => fileApi.upload(file, currentFolder.id))
       );
+
       await loadContents(); // Reload the content list
       event.target.value = ''; // Reset file input
     } catch (error) {
-      setError('Upload failed');
+      setError('Upload failed. Please try again.');
       console.error('Error uploading file:', error);
     } finally {
       setLoading(false);
@@ -88,7 +136,7 @@ const DashboardPage = () => {
     setFiles(files.filter(file => file.id !== fileId));
   };
 
-  const handleFolderClick = async (folderId) {
+  const handleFolderClick = async (folderId) => {
     try {
       const folderInfo = await folderApi.get(folderId);
       setCurrentFolder(prev => ({
@@ -145,12 +193,15 @@ const DashboardPage = () => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
+            multiple
+            accept={ALLOWED_FILE_TYPES.join(',')} // Limit file picker to allowed types
             style={{ display: 'none' }}
           />
           <button 
             className="action-button"
             onClick={handleUploadClick}
             disabled={loading}
+            title={`Upload up to ${MAX_FILES} files (max ${MAX_FILE_SIZE / 1024 / 1024}MB each)`}
           >
             {loading ? 'Uploading...' : 'Upload File'}
           </button>
