@@ -55,9 +55,11 @@ const DashboardPage = () => {
           fileApi.getFiles(),
           folderApi.getAll()
         ]);
-        setFiles(filesData.files || []);
+        console.log('Files Data:', filesData);  
+        console.log('Folders Data:', foldersData);  
+        setFiles(filesData || []);
         // Filter for root folders (those without parentId)
-        setFolders(foldersData.folders?.filter(f => !f.parentId) || []);
+        setFolders(foldersData?.filter(f => !f.parentId) || []);
       } else {
         // Specific folder - get its contents
         const contents = await folderApi.getContents(currentFolder.id);
