@@ -20,6 +20,6 @@ const upload = multer({
 router.post('/upload', upload.single('file'), handleUpload);
 router.get('/:id/download', handleDownload);
 router.get('/', fetchUserFiles);
-router.delete('/:id/delete', handleDelete);
+router.delete('/:id', handleDelete);
 
 module.exports = router;

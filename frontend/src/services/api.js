@@ -127,12 +127,91 @@ export const fileApi = {
   },
 
   delete: async (fileId) => {
-    const response = await fetch(`${API_BASE_URL}/api/files/${fileId}/delete`, {
+    const response = await fetch(`${API_BASE_URL}/api/files/${fileId}`, {
       ...defaultOptions,
       method: 'DELETE',
     });
 
     await handleApiError(response, 'File delete failed');
+    return response.json();
+  },
+};
+
+export const folderApi = {
+  create: async (name, parentId) => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/folders`,
+      {
+        ...defaultOptions,
+        method: 'POST',
+        body: JSON.stringify({ name, parentId });
+      }
+    );
+
+    await handleApiError(response, 'Failed to create folder');
+    return response.json();
+  },
+
+  get: async (folderId) => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/folders/${folderId}`,
+      {
+        ...defaultOptions,
+        method: 'GET'
+      }
+    );
+
+    await handleApiError(response, 'Failed to fetch folder');
+    return response.json();
+  },
+    
+  getAll: async () => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/folders`,
+      {
+        ...defaultOptions,
+        method: 'GET'
+      }
+    );
+
+    await handleApiError(response, 'Failed to fetch folders');
+    return response.json();
+  },
+    
+  getContents: async (folderId) => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/folders/${folderId}/contents`,
+      {
+        ...defaultOptions,
+        method: 'GET'
+      }
+    );
+
+    await handleApiError(response, 'Failed to fetch folder contents');
+    return response.json();
+  }, 
+  
+  update: async (folderId, name) => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/folders/${folderId}`,
+      {
+        ...defaultOptions,
+        method: 'PUT',
+        body: JSON.stringify({ name })
+      }
+    );
+
+    await handleApiError(response, 'Failed to update folder');
+    return response.json();
+  },
+  
+  delete: async (folderId) => {
+    const response = await fetch(`${API_BASE_URL}/api/folders/${folderId}`, {
+    ...defaultOptions,
+    method: 'DELETE',
+    });
+
+    await handleApiError(response, 'Folder delete failed');
     return response.json();
   },
 };
