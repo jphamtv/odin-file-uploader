@@ -55,7 +55,10 @@ const getFile = async (id) => {
 
 const getAllFiles = async (userId) => {
   return prisma.file.findMany({
-    where: { userId },
+    where: {
+      userId,
+      folderId: null // Only get files that aren't in folders
+    },
     orderBy: { createdAt: 'desc' } 
   });
 };
