@@ -5,6 +5,7 @@ const {
   getAllFiles,
   deleteFile
 } = require('../models/fileModel');
+const { getFolder } = require('../models/folderModel');
 
 const handleUpload = async (req, res) => {
   try {
@@ -12,7 +13,23 @@ const handleUpload = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const file = await uploadFile(req.file, req.user.id);
+    // Get folderId from request body, defaults to null for root folder
+    const folderId = req.body.folderId || null;
+
+    // If folderId provided, verify folder exists and user owns it
+    if (folderId) {
+      const folder = await getFolder(folderId);
+
+      if (!folder) {
+        return res.status(404).json({ message: 'Folder not found' });
+      }
+
+      if (folder.userId !== req.user.id) {
+        return res.status(404).json({ message: 'Unauthorized' });
+      }
+    }
+
+    const file = await uploadFile(req.file, req.user.id, folderId);
     res.json(file);
   } catch (error) {
     console.error('Upload error', error);

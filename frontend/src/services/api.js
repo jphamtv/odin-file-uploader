@@ -60,7 +60,7 @@ export const authApi = {
 };
 
 export const fileApi = {
-  upload: async (file, folderId = null) => {
+  upload: async (file, folderId) => {
     if (!(file instanceof File)) {
       throw new Error('Upload requires a File object');
     }
