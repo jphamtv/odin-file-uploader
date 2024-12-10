@@ -119,7 +119,7 @@ const DashboardPage = () => {
 
       // Upload all valid files
       await Promise.all(
-        files.map(file => fileApi.upload(file, currentFolder.id))
+        selectedFiles.map(file => fileApi.upload(file, currentFolder.id))
       );
 
       await loadContents(); // Reload the content list
