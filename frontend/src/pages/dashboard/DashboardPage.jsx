@@ -149,10 +149,9 @@ const DashboardPage = () => {
     }
   };
 
-  const handleFolderDelete = async (folderId) => {
+  const handleFolderDelete = async () => {
     try {
-      await folderApi.delete(folderId);
-      setFolders(prevFolders => prevFolders.filter(f => f.id !== folderId));
+      await loadContents(); // Refresh contents after deletion
     } catch (error) {
       setError('Failed to delete folder');
       console.error('Folder deletion error: ', error);

@@ -37,12 +37,10 @@ const ContentList = ({
   };
 
   const handleDeleteFolder = async (folderId) => {
+    setLoading(prev => ({ ...prev, [`folder-${folderId}`]: 'deleting' }));
     try {
-      setLoading(prev => ({ ...prev, [`folder-${folderId}`]: 'deleting' }));
       await folderApi.delete(folderId);
       onFolderDelete(folderId);
-    } catch (error) {
-      console.error('Delete folder failed:', error);
     } finally {
       setLoading(prev => ({ ...prev, [`folder-${folderId}`]: null }));
     }
