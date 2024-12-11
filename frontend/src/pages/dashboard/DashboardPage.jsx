@@ -179,7 +179,7 @@ const DashboardPage = () => {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>My Files</h1>
+        <h1>File Uploader</h1>
         <div className="user-controls">
           <span>Welcome, {user?.email}</span>
           <button className="logout-button" onClick={handleLogout}>Log Out</button>
