@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuthContext";
 import { fileApi, folderApi } from "../../services/api";
@@ -40,11 +40,7 @@ const DashboardPage = () => {
     'video/x-matroska',  // .mkv files
   ]; 
 
-  useEffect(() => {
-    loadContents();
-  }, [currentFolder.id]); // reload when folder changes
-
-  const loadContents = async () => {
+  const loadContents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -70,7 +66,11 @@ const DashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentFolder.id]);
+
+  useEffect(() => {
+    loadContents();
+  }, [loadContents]); // reload when folder changes
 
   const handleLogout = async () => {
     try {
