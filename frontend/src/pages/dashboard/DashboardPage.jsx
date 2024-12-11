@@ -12,7 +12,7 @@ const DashboardPage = () => {
   const [folders, setFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState({
     id: null, // null means root folder
-    path: [{id: null, name: 'My Files'}]
+    path: [{id: null, name: 'My Stuff'}]
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -89,8 +89,6 @@ const DashboardPage = () => {
     const selectedFiles = Array.from(event.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    console.log('Current folder ID:', currentFolder.id);
-
     // Validation checks
     if (selectedFiles.length > MAX_FILES) {
       setError(`You can only upload up to ${MAX_FILES} files at once`);
@@ -119,18 +117,10 @@ const DashboardPage = () => {
       setLoading(true);
       setError(null);
 
-      // // Upload all valid files
-      // await Promise.all(
-      //   selectedFiles.map(file => fileApi.upload(file, currentFolder.id))
-      // );
-
-      // Add debug log for each file upload
-      const uploadPromises = selectedFiles.map(file => {
-        console.log(`Uploading file ${file.name} to folder ${currentFolder.id}`);
-        return fileApi.upload(file, currentFolder.id);
-      });
-
-      await Promise.all(uploadPromises);
+      // Upload all valid files
+      await Promise.all(
+        selectedFiles.map(file => fileApi.upload(file, currentFolder.id))
+      );
 
       await loadContents(); // Reload the content list
       event.target.value = ''; // Reset file input
@@ -190,7 +180,7 @@ const DashboardPage = () => {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>My files</h1>
+        <h1>My Files</h1>
         <div className="user-controls">
           <span>Welcome, {user?.email}</span>
           <button className="logout-button" onClick={handleLogout}>Log Out</button>
