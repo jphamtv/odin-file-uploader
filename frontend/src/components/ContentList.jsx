@@ -1,72 +1,74 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import { fileApi, folderApi } from '../services/api';
-import './ContentList.css';
+import { useState } from "react";
+import PropTypes from "prop-types";
+import { fileApi, folderApi } from "../services/api";
+import "./ContentList.css";
 
 const ContentList = ({
   files = [],
   folders = [],
   onFileDelete,
   onFolderDelete,
-  onFolderClick
+  onFolderClick,
 }) => {
   const [loading, setLoading] = useState({});
 
   const handleDownload = async (file) => {
     try {
-      setLoading(prev => ({ ...prev, [`file-${file.id}`]: 'downloading' }));
+      setLoading((prev) => ({ ...prev, [`file-${file.id}`]: "downloading" }));
       const blob = await fileApi.download(file.id);
       fileApi.downloadFile(blob, file.name);
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
     } finally {
-      setLoading(prev => ({ ...prev, [`file-${file.id}`]: null }));
+      setLoading((prev) => ({ ...prev, [`file-${file.id}`]: null }));
     }
   };
 
   const handleDeleteFile = async (fileId) => {
     try {
-      setLoading(prev => ({ ...prev, [`file-${fileId}`]: 'deleting' }));
+      setLoading((prev) => ({ ...prev, [`file-${fileId}`]: "deleting" }));
       await fileApi.delete(fileId);
       onFileDelete(fileId);
     } catch (error) {
-      console.error('Delete failed:', error);
+      console.error("Delete failed:", error);
     } finally {
-      setLoading(prev => ({ ...prev, [`file-${fileId}`]: null }));
+      setLoading((prev) => ({ ...prev, [`file-${fileId}`]: null }));
     }
   };
 
   const handleDeleteFolder = async (folderId) => {
-    setLoading(prev => ({ ...prev, [`folder-${folderId}`]: 'deleting' }));
+    setLoading((prev) => ({ ...prev, [`folder-${folderId}`]: "deleting" }));
     try {
       await folderApi.delete(folderId);
       onFolderDelete(folderId);
     } finally {
-      setLoading(prev => ({ ...prev, [`folder-${folderId}`]: null }));
+      setLoading((prev) => ({ ...prev, [`folder-${folderId}`]: null }));
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const formatSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   // Sort folders and files alphabetically
-  const sortedFolders = [...(folders || [])].sort((a, b) => 
-    a.name.localeCompare(b.name));
-  const sortedFiles = [...(files || [])].sort((a, b) => 
-    a.name.localeCompare(b.name));
+  const sortedFolders = [...(folders || [])].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  const sortedFiles = [...(files || [])].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   if (!sortedFiles.length && !sortedFolders.length) {
     return (
@@ -94,7 +96,7 @@ const ContentList = ({
           {sortedFolders.map((folder) => (
             <tr key={`folder-${folder.id}`} className="folder-row">
               <td>
-                <button 
+                <button
                   className="folder-name-button"
                   onClick={() => onFolderClick(folder.id)}
                 >
@@ -107,15 +109,17 @@ const ContentList = ({
               <td>
                 <button
                   onClick={() => handleDeleteFolder(folder.id)}
-                  disabled={loading[`folder-${folder.id}`] === 'deleting'}
+                  disabled={loading[`folder-${folder.id}`] === "deleting"}
                   className="action-button secondary danger"
                 >
-                  {loading[`folder-${folder.id}`] === 'deleting' ? 'Deleting...' : 'Delete'}
+                  {loading[`folder-${folder.id}`] === "deleting"
+                    ? "Deleting..."
+                    : "Delete"}
                 </button>
               </td>
             </tr>
           ))}
-          
+
           {/* Then files */}
           {sortedFiles.map((file) => (
             <tr key={`file-${file.id}`}>
@@ -128,17 +132,21 @@ const ContentList = ({
               <td>
                 <button
                   onClick={() => handleDownload(file)}
-                  disabled={loading[`file-${file.id}`] === 'downloading'}
+                  disabled={loading[`file-${file.id}`] === "downloading"}
                   className="action-button secondary"
                 >
-                  {loading[`file-${file.id}`] === 'downloading' ? 'Downloading...' : 'Download'}
+                  {loading[`file-${file.id}`] === "downloading"
+                    ? "Downloading..."
+                    : "Download"}
                 </button>
                 <button
                   onClick={() => handleDeleteFile(file.id)}
-                  disabled={loading[`file-${file.id}`] === 'deleting'}
+                  disabled={loading[`file-${file.id}`] === "deleting"}
                   className="action-button secondary danger"
                 >
-                  {loading[`file-${file.id}`] === 'deleting' ? 'Deleting...' : 'Delete'}
+                  {loading[`file-${file.id}`] === "deleting"
+                    ? "Deleting..."
+                    : "Delete"}
                 </button>
               </td>
             </tr>
@@ -155,19 +163,19 @@ ContentList.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       size: PropTypes.number.isRequired,
-      createdAt: PropTypes.string.isRequired
+      createdAt: PropTypes.string.isRequired,
     })
   ),
   folders: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      createdAt: PropTypes.string.isRequired
+      createdAt: PropTypes.string.isRequired,
     })
   ),
   onFileDelete: PropTypes.func.isRequired,
   onFolderDelete: PropTypes.func.isRequired,
-  onFolderClick: PropTypes.func.isRequired
+  onFolderClick: PropTypes.func.isRequired,
 };
 
 export default ContentList;

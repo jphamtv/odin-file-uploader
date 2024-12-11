@@ -1,28 +1,28 @@
 // src/pages/auth/LoginPage.jsx
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { useAuth } from '../../hooks/useAuthContext';
-import './Auth.css';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useAuth } from "../../hooks/useAuthContext";
+import "./Auth.css";
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = useForm();
 
   const onSubmit = async (data) => {
     try {
-      setError('');
+      setError("");
       await login(data.email, data.password);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      setError(error.message || 'Login failed');
+      setError(error.message || "Login failed");
     }
   };
 
@@ -35,10 +35,10 @@ const LoginPage = () => {
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
-              {...register('email', { required: true })}
-              id='email'
+              {...register("email", { required: true })}
+              id="email"
               type="email"
-              autoComplete='email'
+              autoComplete="email"
               required
             />
           </div>
@@ -46,26 +46,22 @@ const LoginPage = () => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              {...register('password', { required: true })}
-              id='password'
+              {...register("password", { required: true })}
+              id="password"
               type="password"
-              autoComplete='current-password'
+              autoComplete="current-password"
               required
             />
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
           <button
-            type='submit'
+            type="submit"
             disabled={isSubmitting}
-            className='submit-button'
+            className="submit-button"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
         <div className="link">

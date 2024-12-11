@@ -1,8 +1,8 @@
 // src/contexts/AuthProvider.jsx
 import { useState, useEffect } from "react";
-import PropTypes from 'prop-types';
-import { authApi } from '../services/api';
-import AuthContext from './AuthContext';
+import PropTypes from "prop-types";
+import { authApi } from "../services/api";
+import AuthContext from "./AuthContext";
 
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       throw error; // Re-throw to handle in the UI
-    }    
+    }
   };
 
   const register = async (email, password) => {
@@ -37,11 +37,11 @@ const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       throw error;
-    }    
+    }
   };
 
   const logout = async () => {
-    try { 
+    try {
       setError(null);
       const data = await authApi.logout();
       setIsAuthenticated(false);
@@ -51,12 +51,12 @@ const AuthProvider = ({ children }) => {
       setError(error.message);
       setIsAuthenticated(false);
       setUser(null);
-      throw error; 
-    }    
+      throw error;
+    }
   };
 
   const checkAuthStatus = async () => {
-    try {      
+    try {
       setIsLoading(true);
       setError(null);
       const data = await authApi.checkAuthStatus();
@@ -90,14 +90,10 @@ const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    checkAuthStatus
+    checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 AuthProvider.propTypes = {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuthContext";
 import { fileApi, folderApi } from "../../services/api";
 import ContentList from "../../components/ContentList";
-import './DashboardPage.css';
+import "./DashboardPage.css";
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
@@ -12,33 +12,33 @@ const DashboardPage = () => {
   const [folders, setFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState({
     id: null, // null means root folder
-    path: [{id: null, name: 'My Stuff'}]
+    path: [{ id: null, name: "My Stuff" }],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
+  const [newFolderName, setNewFolderName] = useState("");
 
   // Safeguards for file upload
   const MAX_FILES = 10;
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
   const ALLOWED_FILE_TYPES = [
     // Images
-    'image/jpeg',
-    'image/png',
-    
+    "image/jpeg",
+    "image/png",
+
     // Documents
-    'application/pdf',
-    'text/plain',
+    "application/pdf",
+    "text/plain",
 
     // Videos
-    'video/mp4',
-    'video/quicktime',  // .mov files
-    'video/x-msvideo',  // .avi files
-    'video/webm',
-    'video/x-matroska',  // .mkv files
-  ]; 
+    "video/mp4",
+    "video/quicktime", // .mov files
+    "video/x-msvideo", // .avi files
+    "video/webm",
+    "video/x-matroska", // .mkv files
+  ];
 
   const loadContents = useCallback(async () => {
     try {
@@ -49,11 +49,11 @@ const DashboardPage = () => {
         // Root folder - get all root files and folders
         const [filesData, foldersData] = await Promise.all([
           fileApi.getFiles(),
-          folderApi.getAll()
+          folderApi.getAll(),
         ]);
         setFiles(filesData || []);
         // Filter for root folders (those without parentId)
-        setFolders(foldersData?.filter(f => !f.parentId) || []);
+        setFolders(foldersData?.filter((f) => !f.parentId) || []);
       } else {
         // Specific folder - get its contents
         const contents = await folderApi.getContents(currentFolder.id);
@@ -61,8 +61,8 @@ const DashboardPage = () => {
         setFolders(contents.children || []);
       }
     } catch (error) {
-      setError('Failed to load contents');
-      console.error('Error loading contents:', error);
+      setError("Failed to load contents");
+      console.error("Error loading contents:", error);
     } finally {
       setLoading(false);
     }
@@ -75,9 +75,9 @@ const DashboardPage = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('login');
+      navigate("login");
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error("Logout failed", error);
     }
   };
 
@@ -92,14 +92,16 @@ const DashboardPage = () => {
     // Validation checks
     if (selectedFiles.length > MAX_FILES) {
       setError(`You can only upload up to ${MAX_FILES} files at once`);
-      event.target.value = '';
+      event.target.value = "";
       return;
     }
 
     // Validate each file
-    const invalidFiles = selectedFiles.filter(file => {
+    const invalidFiles = selectedFiles.filter((file) => {
       if (file.size > MAX_FILE_SIZE) {
-        return `${file.name} is too large (max ${MAX_FILE_SIZE / 1024 / 1024}MB)`;
+        return `${file.name} is too large (max ${
+          MAX_FILE_SIZE / 1024 / 1024
+        }MB)`;
       }
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
         return `${file.name} has unsupported file type`;
@@ -108,8 +110,8 @@ const DashboardPage = () => {
     });
 
     if (invalidFiles > 0) {
-      setError('Some files cannot be uploaded: ' + invalidFiles.join(', '));
-      event.target.value = '';
+      setError("Some files cannot be uploaded: " + invalidFiles.join(", "));
+      event.target.value = "";
       return;
     }
 
@@ -119,33 +121,33 @@ const DashboardPage = () => {
 
       // Upload all valid files
       await Promise.all(
-        selectedFiles.map(file => fileApi.upload(file, currentFolder.id))
+        selectedFiles.map((file) => fileApi.upload(file, currentFolder.id))
       );
 
       await loadContents(); // Reload the content list
-      event.target.value = ''; // Reset file input
+      event.target.value = ""; // Reset file input
     } catch (error) {
-      setError('Upload failed. Please try again.');
-      console.error('Error uploading file:', error);
+      setError("Upload failed. Please try again.");
+      console.error("Error uploading file:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleFileDelete = (fileId) => {
-    setFiles(files.filter(file => file.id !== fileId));
+    setFiles(files.filter((file) => file.id !== fileId));
   };
 
   const handleFolderClick = async (folderId) => {
     try {
       const folderInfo = await folderApi.get(folderId);
-      setCurrentFolder(prev => ({
+      setCurrentFolder((prev) => ({
         id: folderId,
-        path: [...prev.path, { id: folderId, name: folderInfo.name}]
+        path: [...prev.path, { id: folderId, name: folderInfo.name }],
       }));
     } catch (error) {
-      setError('Failed to open folder');
-      console.error('Navigation error: ', error);
+      setError("Failed to open folder");
+      console.error("Navigation error: ", error);
     }
   };
 
@@ -153,8 +155,8 @@ const DashboardPage = () => {
     try {
       await loadContents(); // Refresh contents after deletion
     } catch (error) {
-      setError('Failed to delete folder');
-      console.error('Folder deletion error: ', error);
+      setError("Failed to delete folder");
+      console.error("Folder deletion error: ", error);
     }
   };
 
@@ -165,12 +167,12 @@ const DashboardPage = () => {
     try {
       setLoading(true);
       await folderApi.create(newFolderName, currentFolder.id);
-      setNewFolderName('');
+      setNewFolderName("");
       setShowNewFolderInput(false);
       await loadContents(); // Reload to show new folder
     } catch (error) {
-      setError('Failed to create new folder');
-      console.error('Folder creation error: ', error);
+      setError("Failed to create new folder");
+      console.error("Folder creation error: ", error);
     } finally {
       setLoading(false);
     }
@@ -182,20 +184,22 @@ const DashboardPage = () => {
         <h1>File Uploader</h1>
         <div className="user-controls">
           <span>Welcome, {user?.email}</span>
-          <button className="logout-button" onClick={handleLogout}>Log Out</button>
+          <button className="logout-button" onClick={handleLogout}>
+            Log Out
+          </button>
         </div>
       </header>
 
       <div className="breadcrumb">
         {currentFolder.path.map((item, index) => (
-          <span key={item.id || 'root'}>
-            {index > 0 && ' / '}
+          <span key={item.id || "root"}>
+            {index > 0 && " / "}
             <button
               onClick={() => {
                 // Set current folder to this level
                 setCurrentFolder({
                   id: item.id,
-                  path: currentFolder.path.slice(0, index + 1)
+                  path: currentFolder.path.slice(0, index + 1),
                 });
               }}
               className="breadcrumb-button"
@@ -213,16 +217,18 @@ const DashboardPage = () => {
             ref={fileInputRef}
             onChange={handleFileSelect}
             multiple
-            accept={ALLOWED_FILE_TYPES.join(',')} // Limit file picker to allowed types
-            style={{ display: 'none' }}
+            accept={ALLOWED_FILE_TYPES.join(",")} // Limit file picker to allowed types
+            style={{ display: "none" }}
           />
-          <button 
+          <button
             className="action-button"
             onClick={handleUploadClick}
             disabled={loading}
-            title={`Upload up to ${MAX_FILES} files (max ${MAX_FILE_SIZE / 1024 / 1024}MB each)`}
+            title={`Upload up to ${MAX_FILES} files (max ${
+              MAX_FILE_SIZE / 1024 / 1024
+            }MB each)`}
           >
-            {loading ? 'Uploading...' : 'Upload File'}
+            {loading ? "Uploading..." : "Upload File"}
           </button>
           <button
             className="action-button"
@@ -235,10 +241,7 @@ const DashboardPage = () => {
 
         {/* New folder input form */}
         {showNewFolderInput && (
-          <form
-            onSubmit={handleCreateFolder}
-            className="new-folder-form"
-          >
+          <form onSubmit={handleCreateFolder} className="new-folder-form">
             <input
               type="text"
               value={newFolderName}
@@ -247,17 +250,14 @@ const DashboardPage = () => {
               autoFocus
               maxLength={255}
             />
-            <button
-              type="submit"
-              disabled={loading}
-            >
+            <button type="submit" disabled={loading}>
               Create
             </button>
             <button
               type="button"
               onClick={() => {
                 setShowNewFolderInput(false);
-                setNewFolderName('');
+                setNewFolderName("");
               }}
             >
               Cancel
@@ -265,17 +265,13 @@ const DashboardPage = () => {
           </form>
         )}
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <div className="content-area">
           {loading && !files.length && !folders.length ? (
             <div className="loading-state">Loading...</div>
           ) : (
-            <ContentList 
+            <ContentList
               files={files}
               folders={folders}
               onFileDelete={handleFileDelete}
