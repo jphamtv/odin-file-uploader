@@ -1,16 +1,16 @@
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const { PrismaClient } = require('@prisma/client');
-const { getByEmail, getById } = require('../models/userModel');
+const bcrypt = require("bcryptjs");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const { PrismaClient } = require("@prisma/client");
+const { getByEmail, getById } = require("../models/userModel");
 
 const prisma = new PrismaClient();
 
 function initialize() {
   // Configure strategy options to use email field
   const options = {
-    usernameField: 'email',
-    passwordField: 'password'
+    usernameField: "email",
+    passwordField: "password",
   };
 
   passport.use(
@@ -20,13 +20,13 @@ function initialize() {
         const user = await getByEmail(email);
 
         if (!user) {
-          return done(null, false, { message: 'Incorrect email' });
+          return done(null, false, { message: "Incorrect email" });
         }
 
         // Check if password matches
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
-          return done(null, false, { message: 'Incorrect password' });
+          return done(null, false, { message: "Incorrect password" });
         }
 
         return done(null, user);

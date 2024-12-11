@@ -1,16 +1,16 @@
 // backend/app.js
-const express = require('express');
-const session = require('express-session');
-const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
-const { PrismaClient } = require('@prisma/client');
-const path = require('path');
-const passport = require('passport');
-const cors = require('cors');
-const initializePassport = require('./config/passportConfig');
-const userRouter = require('./routes/usersRouter');
-const filesRouter = require('./routes/filesRouter');
-const foldersRouter = require('./routes/foldersRouter');
-require('dotenv').config();
+const express = require("express");
+const session = require("express-session");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
+const { PrismaClient } = require("@prisma/client");
+const path = require("path");
+const passport = require("passport");
+const cors = require("cors");
+const initializePassport = require("./config/passportConfig");
+const userRouter = require("./routes/usersRouter");
+const filesRouter = require("./routes/filesRouter");
+const foldersRouter = require("./routes/foldersRouter");
+require("dotenv").config();
 
 const app = express();
 
@@ -19,38 +19,38 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false })); // Get values from req.body
 
 // Static files
-const assetsPath = path.join(__dirname, 'public');
+const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
 
 // Basic CORS setup
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL
-    : 'http://localhost:5173',
+  origin:
+    process.env.NODE_ENV === "production"
+      ? process.env.FRONTEND_URL
+      : "http://localhost:5173",
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionSuccessStatus: 200
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
 // Session middleware config (MUST come before passport middleware)
-app.use(session({
-  cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000 // ms
-  },
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: new PrismaSessionStore(
-    new PrismaClient(),
-    {
+app.use(
+  session({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+    },
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: new PrismaSessionStore(new PrismaClient(), {
       checkPeriod: 2 * 60 * 1000, // ms
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
-    }
-  )
-}));
+    }),
+  })
+);
 
 // Initialize Passport + middleware
 initializePassport();
@@ -65,15 +65,15 @@ app.use((req, res, next) => {
 // Routes
 const authenticateRoute = (req, res, next) => {
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: 'Not authenticated' });
+    return res.status(401).json({ message: "Not authenticated" });
   }
   next();
 };
 
 // Routes
-app.use('/', userRouter);
-app.use('/api/files', authenticateRoute, filesRouter);
-app.use('/api/folders', authenticateRoute, foldersRouter);
+app.use("/", userRouter);
+app.use("/api/files", authenticateRoute, filesRouter);
+app.use("/api/folders", authenticateRoute, foldersRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

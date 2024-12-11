@@ -3,97 +3,103 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 const defaultOptions = {
-  credentials: 'include',
+  credentials: "include",
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 };
 
 const handleApiError = async (response, defaultMessage) => {
   if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || defaultMessage);
+    if (response.status === 401) {
+      window.location.href = "/login";
     }
+    const error = await response.json();
+    throw new Error(error.message || defaultMessage);
+  }
 };
 
 export const authApi = {
   login: async (email, password) => {
     const response = await fetch(`${API_BASE_URL}/login`, {
       ...defaultOptions,
-      method: 'POST',
-      body: JSON.stringify({ email, password })
+      method: "POST",
+      body: JSON.stringify({ email, password }),
     });
 
-    await handleApiError(response, 'Login failed');
+    await handleApiError(response, "Login failed");
     return response.json();
   },
 
   register: async (email, password) => {
     const response = await fetch(`${API_BASE_URL}/register`, {
       ...defaultOptions,
-      method: 'POST',
-      body: JSON.stringify({ email, password })
+      method: "POST",
+      body: JSON.stringify({ email, password }),
     });
 
-    await handleApiError(response, 'Register failed');
+    await handleApiError(response, "Register failed");
     return response.json();
   },
 
   logout: async () => {
     const response = await fetch(`${API_BASE_URL}/logout`, {
       ...defaultOptions,
-      method: 'GET',
+      method: "GET",
     });
 
-    await handleApiError(response, 'Logout failed');
+    await handleApiError(response, "Logout failed");
     return response.json();
   },
 
   checkAuthStatus: async () => {
     const response = await fetch(`${API_BASE_URL}/auth/status`, {
-      ...defaultOptions
+      ...defaultOptions,
     });
 
     if (!response.ok) return { authenticated: false, user: null };
     return response.json();
-  }
+  },
 };
 
 export const fileApi = {
   upload: async (file, folderId) => {
     if (!(file instanceof File)) {
-      throw new Error('Upload requires a File object');
+      throw new Error("Upload requires a File object");
     }
 
     const options = {
       ...defaultOptions,
-      method: 'POST',
-      headers: {} // Override default headers
+      method: "POST",
+      headers: {}, // Override default headers
     };
 
     // Create FormData and append file
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     if (folderId) {
-      formData.append('folderId', folderId);
+      formData.append("folderId", folderId);
     }
 
     const response = await fetch(`${API_BASE_URL}/api/files/upload`, {
       ...options,
-      body: formData
+      body: formData,
     });
 
-    await handleApiError(response, 'Upload failed');
+    await handleApiError(response, "Upload failed");
     return response.json();
   },
 
   download: async (fileId) => {
-    const response = await fetch(`${API_BASE_URL}/api/files/${fileId}/download`, {
-      ...defaultOptions,
-      method: 'GET'
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/files/${fileId}/download`,
+      {
+        ...defaultOptions,
+        method: "GET",
+      }
+    );
 
-    await handleApiError(response, 'Download failed');
+    await handleApiError(response, "Download failed");
     const data = await response.json();
 
     // Fetch the actual file from the URL
@@ -104,7 +110,7 @@ export const fileApi = {
   // Utility to handle the actual browser download
   downloadFile: (blob, fileName) => {
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
     document.body.appendChild(a);
@@ -114,104 +120,89 @@ export const fileApi = {
   },
 
   getFiles: async () => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/files`,
-      {
-        ...defaultOptions,
-        method: 'GET'
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/files`, {
+      ...defaultOptions,
+      method: "GET",
+    });
 
-    await handleApiError(response, 'Failed to fetch files');
+    await handleApiError(response, "Failed to fetch files");
     return response.json();
   },
 
   delete: async (fileId) => {
     const response = await fetch(`${API_BASE_URL}/api/files/${fileId}`, {
       ...defaultOptions,
-      method: 'DELETE',
+      method: "DELETE",
     });
 
-    await handleApiError(response, 'File delete failed');
+    await handleApiError(response, "File delete failed");
     return response.json();
   },
 };
 
 export const folderApi = {
   create: async (name, parentId) => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/folders`,
-      {
-        ...defaultOptions,
-        method: 'POST',
-        body: JSON.stringify({ name, parentId })
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/folders`, {
+      ...defaultOptions,
+      method: "POST",
+      body: JSON.stringify({ name, parentId }),
+    });
 
-    await handleApiError(response, 'Failed to create folder');
+    await handleApiError(response, "Failed to create folder");
     return response.json();
   },
 
   get: async (folderId) => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/folders/${folderId}`,
-      {
-        ...defaultOptions,
-        method: 'GET'
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/folders/${folderId}`, {
+      ...defaultOptions,
+      method: "GET",
+    });
 
-    await handleApiError(response, 'Failed to fetch folder');
+    await handleApiError(response, "Failed to fetch folder");
     return response.json();
   },
-    
+
   getAll: async () => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/folders`,
-      {
-        ...defaultOptions,
-        method: 'GET'
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/folders`, {
+      ...defaultOptions,
+      method: "GET",
+    });
 
-    await handleApiError(response, 'Failed to fetch folders');
+    await handleApiError(response, "Failed to fetch folders");
     return response.json();
   },
-    
+
   getContents: async (folderId) => {
     const response = await fetch(
       `${API_BASE_URL}/api/folders/${folderId}/contents`,
       {
         ...defaultOptions,
-        method: 'GET'
+        method: "GET",
       }
     );
 
-    await handleApiError(response, 'Failed to fetch folder contents');
-    return response.json();
-  }, 
-  
-  update: async (folderId, name) => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/folders/${folderId}`,
-      {
-        ...defaultOptions,
-        method: 'PUT',
-        body: JSON.stringify({ name })
-      }
-    );
-
-    await handleApiError(response, 'Failed to update folder');
+    await handleApiError(response, "Failed to fetch folder contents");
     return response.json();
   },
-  
-  delete: async (folderId) => {
+
+  update: async (folderId, name) => {
     const response = await fetch(`${API_BASE_URL}/api/folders/${folderId}`, {
-    ...defaultOptions,
-    method: 'DELETE',
+      ...defaultOptions,
+      method: "PUT",
+      body: JSON.stringify({ name }),
     });
 
-    await handleApiError(response, 'Folder delete failed');
+    await handleApiError(response, "Failed to update folder");
+    return response.json();
+  },
+
+  delete: async (folderId) => {
+    const response = await fetch(`${API_BASE_URL}/api/folders/${folderId}`, {
+      ...defaultOptions,
+      method: "DELETE",
+    });
+
+    await handleApiError(response, "Folder delete failed");
     return response.json();
   },
 };

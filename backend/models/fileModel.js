@@ -1,6 +1,6 @@
 // backend/models/fileModel.js
-const { PrismaClient } = require('@prisma/client');
-const supabase = require('../config/supabaseConfig');
+const { PrismaClient } = require("@prisma/client");
+const supabase = require("../config/supabaseConfig");
 const prisma = new PrismaClient();
 
 const uploadFile = async (fileData, userId, folderId = null) => {
@@ -9,25 +9,27 @@ const uploadFile = async (fileData, userId, folderId = null) => {
     const options = {
       contentType: fileData.mimeType,
       upsert: false,
-      contentDisposition: `attachment; filename="${fileData.originalname}"` // This forces download
+      contentDisposition: `attachment; filename="${fileData.originalname}"`, // This forces download
     };
 
-    // Upload file to Supabase 
+    // Upload file to Supabase
     const { data: storageData, error: storageError } = await supabase.storage
-      .from('file-storage')
+      .from("file-storage")
       .upload(
         `${userId}/${fileData.originalname}`, // Path: userId/filename
         fileData.buffer, // Raw file data
         options
       );
-    
+
     if (storageError) throw storageError;
 
-    // Get public URL 
-    const { data: { publicUrl } } = supabase.storage
-      .from('file-storage')
+    // Get public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage
+      .from("file-storage")
       .getPublicUrl(`${userId}/${fileData.originalname}`);
-    
+
     // Create database record with Supabase URL
     const file = await prisma.file.create({
       data: {
@@ -36,20 +38,20 @@ const uploadFile = async (fileData, userId, folderId = null) => {
         mimeType: fileData.mimetype,
         url: publicUrl,
         userId,
-        folderId
-      }
+        folderId,
+      },
     });
 
     return file;
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error("File upload error:", error);
     throw error;
   }
 };
 
 const getFile = async (id) => {
   return prisma.file.findUnique({
-    where: { id }
+    where: { id },
   });
 };
 
@@ -57,27 +59,27 @@ const getAllFiles = async (userId) => {
   return prisma.file.findMany({
     where: {
       userId,
-      folderId: null // Only get files that aren't in folders
+      folderId: null, // Only get files that aren't in folders
     },
-    orderBy: { createdAt: 'desc' } 
+    orderBy: { createdAt: "desc" },
   });
 };
 
 const deleteFile = async (id) => {
   const file = await getFile(id);
-  if (!file) throw new Error('File not found');
+  if (!file) throw new Error("File not found");
 
   // Delete from Supabase Storage
   const filePath = `${file.userId}/${file.name}`;
   const { error: storageError } = await supabase.storage
-    .from('file-storage')
+    .from("file-storage")
     .remove([filePath]);
-  
+
   if (storageError) throw storageError;
 
   // Delete database record
   return prisma.file.delete({
-    where: { id }
+    where: { id },
   });
 };
 
@@ -86,4 +88,4 @@ module.exports = {
   getFile,
   getAllFiles,
   deleteFile,
-}
+};
