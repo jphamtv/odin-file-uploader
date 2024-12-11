@@ -58,7 +58,7 @@ const DashboardPage = () => {
         // Specific folder - get its contents
         const contents = await folderApi.getContents(currentFolder.id);
         setFiles(contents.files || []);
-        setFolders(contents.folders || []);
+        setFolders(contents.children || []);
       }
     } catch (error) {
       setError('Failed to load contents');
